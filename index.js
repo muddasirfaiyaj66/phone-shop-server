@@ -28,6 +28,11 @@ async function run() {
 
     await client.connect();
     const phonesCollection = client.db('coffeeDB').collection('phones');
+    app.get('/phones',async(req,res)=>{
+      const cursor = phonesCollection.find();
+      const result = await cursor.toArray();
+      res.send(result); 
+    })
     app.post('/phones', async(req,res) =>{
       const newPhones = req.body;
       const result = await phonesCollection.insertOne(newPhones);
