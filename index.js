@@ -27,7 +27,7 @@ async function run() {
   try {
 
     await client.connect();
-    const phonesCollection = client.db('coffeeDB').collection('phones');
+    const phonesCollection = client.db('phonesDB').collection('phones');
     app.get('/phones',async(req,res)=>{
       const cursor = phonesCollection.find();
       const result = await cursor.toArray();
@@ -37,7 +37,13 @@ async function run() {
       const newPhones = req.body;
       const result = await phonesCollection.insertOne(newPhones);
       res.send(result);
-      console.log(result);
+      
+    })
+    app.get('/phones/:brand_name', async(req,res)=>{
+      const brandName= req.params.brand_name;
+      const cursor = phonesCollection.find({"brand_name": brandName})
+      const result = await cursor.toArray();
+      res.send(result)
     })
     await client.db("admin").command({ ping: 1 });
     console.log("Pinged your deployment. You successfully connected to MongoDB!");
