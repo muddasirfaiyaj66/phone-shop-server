@@ -28,29 +28,33 @@ async function run() {
 
     await client.connect();
     const phonesCollection = client.db('phonesDB').collection('phones');
-    app.get('/phones',async(req,res)=>{
-      const cursor = phonesCollection.find();
-      const result = await cursor.toArray();
-      res.send(result); 
-    })
+   
     app.post('/phones', async(req,res) =>{
       const newPhones = req.body;
       const result = await phonesCollection.insertOne(newPhones);
       res.send(result);
       
     })
+    app.get('/phones',async(req,res)=>{
+      const cursor = phonesCollection.find();
+      const result = await cursor.toArray();
+      res.send(result); 
+    })
     app.get('/phones/:brand_name', async(req,res)=>{
       const brandName= req.params.brand_name;
       const cursor = phonesCollection.find({"brand_name": brandName})
       const result = await cursor.toArray();
       res.send(result)
-    })
+    });
     app.get('/phones/:brand_name/:id', async(req,res)=>{
+      
       const id = req.params.id;
       const query ={_id: new ObjectId(id)}
       const result =await phonesCollection.findOne(query);
       res.send(result)
-    })
+    });
+    
+    
     await client.db("admin").command({ ping: 1 });
     console.log("Pinged your deployment. You successfully connected to MongoDB!");
   } finally {
