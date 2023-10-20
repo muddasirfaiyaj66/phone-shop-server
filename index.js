@@ -2,9 +2,9 @@ const express = require('express');
 const cors = require('cors');
 require('dotenv').config();
 const { MongoClient, ServerApiVersion } = require('mongodb');
-const app =express();
+const app = express();
 const port = process.env.PORT || 5000;
- 
+
 
 // middleware
 app.use(cors());
@@ -25,9 +25,15 @@ const client = new MongoClient(uri, {
 
 async function run() {
   try {
-    // Connect the client to the server	(optional starting in v4.7)
+
     await client.connect();
-    // Send a ping to confirm a successful connection
+    const phonesCollection = client.db('coffeeDB').collection('phones');
+    app.post('/phones', async(req,res) =>{
+      const newPhones = req.body;
+      const result = await phonesCollection.insertOne(newPhones);
+      res.send(result);
+      console.log(result);
+    })
     await client.db("admin").command({ ping: 1 });
     console.log("Pinged your deployment. You successfully connected to MongoDB!");
   } finally {
@@ -38,10 +44,10 @@ async function run() {
 run().catch(console.dir);
 
 
-app.get('/', (req,res)=>{
-    res.send('Phone server start')
+app.get('/', (req, res) => {
+  res.send('Phone server start')
 })
 
-app.listen(port , ()=>{
-    console.log(`Server is running on ${port}`)
+app.listen(port, () => {
+  console.log(`Server is running on ${port}`)
 })
