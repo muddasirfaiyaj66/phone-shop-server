@@ -34,25 +34,25 @@ async function run() {
       const result = await phonesCollection.insertOne(newPhone)
       res.send(result)
     })
-    
-    app.get('/phones', async (req, res) => {
-      const cursor = phonesCollection.find();
-      const result = await cursor.toArray();
-      res.send(result);
-    });
-    
-    
-    app.get('/phones/:id', async (req, res) => {
+    app.delete("/phones/:id", async (req, res) => {
       const id = req.params.id;
       const query = { _id: new ObjectId(id) }
+      const result = await phonesCollection.deleteOne(query)
+      res.send(result)
+    })
+    app.get('/phones/:id', async (req, res) => {
+      const id = req.params.id;
+      const query = { _id: id }
       const result = await phonesCollection.findOne(query)
       res.send(result)
     })
     app.put('/phones/:id', async (req, res) => {
       const id = req.params.id;
+      const updatePhone = req.body;
       const filter = { _id: new ObjectId(id) }
       const options = { upsert: true }
-      const updatePhone = req.body;
+      console.log(id);
+      
       const phone = {
         $set: {
           name: updatePhone.name,
@@ -65,20 +65,23 @@ async function run() {
           details: updatePhone.details,
           operating_system: updatePhone.operating_system,
           camera: updatePhone.camera,
-        }
-      }
-      const result = await phonesCollection.updateOne(filter, phone, options)
-      res.send(result)
+        },
+      };
+      const result = await phonesCollection.updateOne(filter, phone, options);
+      res.send(result);
     })
+    app.get('/phones', async (req, res) => {
+      const result = await phonesCollection.find().toArray();
+     
+      res.send(result);
+    });
     
     
-    app.delete("/phones/:id", async (req, res) => {
-      const id = req.params.id;
-      const query = { _id: new ObjectId(id) }
-      const result = await phonesCollection.deleteOne(query)
-      res.send(result)
-    })
+   
+   
     
+    
+   
     
     // cart collection 
     app.post('/cart', async (req, res) => {
@@ -87,20 +90,6 @@ async function run() {
       const result = await cartCollection.insertOne(cartData)
       res.send(result)
     })
-    app.get('/cart', async (req, res) => {
-      const cursor = cartCollection.find()
-      const cart = await cursor.toArray()
-    
-      res.send(cart)
-    
-    })
-    app.get('/cart/:id', async (req, res) => {
-      const id = req.params.id;
-      const query = { _id: id }
-      const result = await cartCollection.findOne(query)
-      res.send(result)
-    })
-    
     app.delete("/cart/:id", async (req, res) => {
       const id = req.params.id;
       const query = { _id: id};
@@ -108,6 +97,23 @@ async function run() {
       res.send(result);
     });
     
+    app.get('/cart/:id', async (req, res) => {
+      const id = req.params.id;
+      const query = { _id: id }
+      const result = await cartCollection.findOne(query)
+      res.send(result)
+    })
+   
+    app.get('/cart', async (req, res) => {
+      const cursor = cartCollection.find()
+      const cart = await cursor.toArray()
+    
+      res.send(cart)
+    
+    })
+   
+    
+   
     
 
     // await client.db("admin").command({ ping: 1 });
