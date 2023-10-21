@@ -25,112 +25,115 @@ const client = new MongoClient(uri, {
 
 async function run() {
   try {
-
     await client.connect();
     const phonesCollection = client.db('phonesDB').collection('phones');
-    const cartCollection = client.db('phonesDB').collection('cart');
-    app.get('/phones', async(req,res) =>{
+    const cartCollection = client.db('cartDB').collection('cart');
+  
+    app.post('/phones', async (req, res) => {
+      const newPhone = req.body;
+      const result = await phonesCollection.insertOne(newPhone)
+      res.send(result)
+    })
+    
+    app.get('/phones', async (req, res) => {
       const cursor = phonesCollection.find();
       const result = await cursor.toArray();
-
       res.send(result);
-  });
- 
-
-// app.get('/phones/:brand_name/:_id', async(req,res)=>{
-//   const id = req.params._id;
-//   const query ={_id: new ObjectId(id)}
-//   const result =await phonesCollection.findOne(query);
-//   res.send(result)
-// });
-
-
-
-
-
-app.post('/phones', async(req,res) =>{
-  const newPhone = req.body;
-  const result = await phonesCollection.insertOne(newPhone)
-
-  res.send(result)
-})
-app.get('/phones/:id', async(req,res)=>{
-  const id = req.params.id;
-  const query = {_id: new ObjectId(id)}
-  const result = await phonesCollection.findOne(query)
-  res.send(result)
-})
-
-// app.get('/phones/:brand_name', async(req,res)=>{
-//   const brandName= req.params.brand_name;
-//   const cursor = phonesCollection.find({"brand_name": brandName})
-//   const result = await cursor.toArray();
-//   res.send(result)  
-// });
-
-app.put('/phones/:id', async(req,res) =>{
-  const id = req.params.id;
-  const filter = {_id: new ObjectId(id)}
-  const options = {upsert:true}
-  const updatePhone = req.body;
-  const phone = {
-        $set:{
-          name :updatePhone.name ,
-          brand_name:updatePhone.brand_name,
-          ram:updatePhone.ram,
-          storage:updatePhone.storage,
-          price:updatePhone.price,
-          image:updatePhone.image,
-          rating:updatePhone.rating,
-          details:updatePhone.details,
-          operating_system:updatePhone.operating_system,
-          camera:updatePhone.camera,
+    });
+    
+    
+    app.get('/phones/:id', async (req, res) => {
+      const id = req.params.id;
+      const query = { _id: new ObjectId(id) }
+      const result = await phonesCollection.findOne(query)
+      res.send(result)
+    })
+    app.put('/phones/:id', async (req, res) => {
+      const id = req.params.id;
+      const filter = { _id: new ObjectId(id) }
+      const options = { upsert: true }
+      const updatePhone = req.body;
+      const phone = {
+        $set: {
+          name: updatePhone.name,
+          brand_name: updatePhone.brand_name,
+          ram: updatePhone.ram,
+          storage: updatePhone.storage,
+          price: updatePhone.price,
+          image: updatePhone.image,
+          rating: updatePhone.rating,
+          details: updatePhone.details,
+          operating_system: updatePhone.operating_system,
+          camera: updatePhone.camera,
         }
       }
-  })
-app.delete("/phones/:id",async(req,res)=>{
-  const id = req.params.id;
-  const query ={_id: new ObjectId(id)}
-  const result =await phonesCollection.deleteOne(query)
-  res.send(result)
-})
-  // cart collection 
- 
-  app.get('/cart', async(req,res)=>{
-    const cursor = cartCollection.find()
-    const cart = await cursor.toArray()
-
-    res.send(cart)
-
-  })
-  app.post('/cart' , async(req,res)=>{
-    const cartData = req.body;
-   
-    const result =await cartCollection.insertOne(cartData)
-    res.send(result)
-  })
-
-
- 
-   
+      const result = await phonesCollection.updateOne(filter, phone, options)
+      res.send(result)
+    })
     
-  // await client.db("admin").command({ ping: 1 });
-  console.log("Pinged your deployment. You successfully connected to MongoDB!");
-} finally {
-  // Ensures that the client will close when you finish/error
-  // await client.close();    
+    
+    app.delete("/phones/:id", async (req, res) => {
+      const id = req.params.id;
+      const query = { _id: new ObjectId(id) }
+      const result = await phonesCollection.deleteOne(query)
+      res.send(result)
+    })
+    
+    
+    // cart collection 
+    app.post('/cart', async (req, res) => {
+      const cartData = req.body;
+    
+      const result = await cartCollection.insertOne(cartData)
+      res.send(result)
+    })
+    app.get('/cart', async (req, res) => {
+      const cursor = cartCollection.find()
+      const cart = await cursor.toArray()
+    
+      res.send(cart)
+    
+    })
+    app.get('/cart/:id', async (req, res) => {
+      const id = req.params.id;
+      const query = { _id: id }
+      const result = await cartCollection.findOne(query)
+      res.send(result)
+    })
+    
+    app.delete("/cart/:id", async (req, res) => {
+      const id = req.params.id;
+      const query = { _id: id};
+      const result = await cartCollection.deleteOne(query);
+      res.send(result);
+    });
+    
+    
+
+    // await client.db("admin").command({ ping: 1 });
+    // console.log("Pinged your deployment. You successfully connected to MongoDB!");
+  } finally {
+    // Ensures that the client will close when you finish/error
+    // await client.close();    
+  }
 }
-}
+
+
+
+
+
 run().catch(console.dir);
 
 
-app.get('/', (req, res)=>{
+
+
+app.get('/', (req, res) => {
   res.send("Server start successfully")
 })
 
 
-app.listen(port, ()=>{
-  console.log(`server is running on ${port}`)
+app.listen(port, () => {
+  // console.log(`server is running on ${port}`)
 })
 
 
