@@ -28,34 +28,83 @@ async function run() {
 
     await client.connect();
     const phonesCollection = client.db('phonesDB').collection('phones');
-   
-    app.post('/phones', async(req,res) =>{
-      const newPhones = req.body;
-      const result = await phonesCollection.insertOne(newPhones);
-      res.send(result);
-      
-    })
-    app.get('/phones',async(req,res)=>{
+    app.get('/phones', async(req,res) =>{
       const cursor = phonesCollection.find();
       const result = await cursor.toArray();
-      res.send(result); 
-    })
-    app.get('/phones/:brand_name', async(req,res)=>{
-      const brandName= req.params.brand_name;
-      const cursor = phonesCollection.find({"brand_name": brandName})
-      const result = await cursor.toArray();
-      res.send(result)
-    });
-    app.get('/phones/:brand_name/:id', async(req,res)=>{
-      
-      const id = req.params.id;
-      const query ={_id: new ObjectId(id)}
-      const result =await phonesCollection.findOne(query);
-      res.send(result)
-    });
+
+      res.send(result);
+  });
+ 
+
+// app.get('/phones/:brand_name/:_id', async(req,res)=>{
+//   const id = req.params._id;
+//   const query ={_id: new ObjectId(id)}
+//   const result =await phonesCollection.findOne(query);
+//   res.send(result)
+// });
+
+
+
+
+
+app.post('/phones', async(req,res) =>{
+  const newPhone = req.body;
+  const result = await phonesCollection.insertOne(newPhone)
+
+  res.send(result)
+})
+app.get('/phones/:id', async(req,res)=>{
+  const id = req.params.id;
+  const query = {_id: new ObjectId(id)}
+  const result = await phonesCollection.findOne(query)
+  res.send(result)
+})
+
+// app.get('/phones/:brand_name', async(req,res)=>{
+//   const brandName= req.params.brand_name;
+//   const cursor = phonesCollection.find({"brand_name": brandName})
+//   const result = await cursor.toArray();
+//   res.send(result)  
+// });
+
+app.put('/phones/:id', async(req,res) =>{
+  const id = req.params.id;
+  const filter = {_id: new ObjectId(id)}
+  const options = {upsert:true}
+  const updatePhone = req.body;
+  const phone = {
+        $set:{
+          name :updatePhone.name ,
+          brand_name:updatePhone.brand_name,
+          ram:updatePhone.ram,
+          storage:updatePhone.storage,
+          price:updatePhone.price,
+          image:updatePhone.image,
+          rating:updatePhone.rating,
+          details:updatePhone.details,
+          operating_system:updatePhone.operating_system,
+          camera:updatePhone.camera,
+        }
+  }
+  const result = await phonesCollection.updateOne(filter,phone,options)
+  res.send(result)
+})
+;
+
+
+   
     
     
-    await client.db("admin").command({ ping: 1 });
+   
+
+    
+  
+   
+    
+   
+    
+    
+    // await client.db("admin").command({ ping: 1 });
     console.log("Pinged your deployment. You successfully connected to MongoDB!");
   } finally {
     // Ensures that the client will close when you finish/error
