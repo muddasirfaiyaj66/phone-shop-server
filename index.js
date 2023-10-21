@@ -28,6 +28,7 @@ async function run() {
 
     await client.connect();
     const phonesCollection = client.db('phonesDB').collection('phones');
+    const cartCollection = client.db('phonesDB').collection('cart');
     app.get('/phones', async(req,res) =>{
       const cursor = phonesCollection.find();
       const result = await cursor.toArray();
@@ -85,39 +86,51 @@ app.put('/phones/:id', async(req,res) =>{
           operating_system:updatePhone.operating_system,
           camera:updatePhone.camera,
         }
-  }
-  const result = await phonesCollection.updateOne(filter,phone,options)
+      }
+  })
+app.delete("/phones/:id",async(req,res)=>{
+  const id = req.params.id;
+  const query ={_id: new ObjectId(id)}
+  const result =await phonesCollection.deleteOne(query)
   res.send(result)
 })
-;
+  // cart collection 
+ 
+  app.get('/cart', async(req,res)=>{
+    const cursor = cartCollection.find()
+    const cart = await cursor.toArray()
+
+    res.send(cart)
+
+  })
+  app.post('/cart' , async(req,res)=>{
+    const cartData = req.body;
+   
+    const result =await cartCollection.insertOne(cartData)
+    res.send(result)
+  })
 
 
+ 
    
     
-    
-   
-
-    
-  
-   
-    
-   
-    
-    
-    // await client.db("admin").command({ ping: 1 });
-    console.log("Pinged your deployment. You successfully connected to MongoDB!");
-  } finally {
-    // Ensures that the client will close when you finish/error
-    // await client.close();
-  }
+  // await client.db("admin").command({ ping: 1 });
+  console.log("Pinged your deployment. You successfully connected to MongoDB!");
+} finally {
+  // Ensures that the client will close when you finish/error
+  // await client.close();    
+}
 }
 run().catch(console.dir);
 
 
-app.get('/', (req, res) => {
-  res.send('Phone server start')
+app.get('/', (req, res)=>{
+  res.send("Server start successfully")
 })
 
-app.listen(port, () => {
-  console.log(`Server is running on ${port}`)
+
+app.listen(port, ()=>{
+  console.log(`server is running on ${port}`)
 })
+
+
