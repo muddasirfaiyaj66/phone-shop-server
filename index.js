@@ -26,91 +26,7 @@ const client = new MongoClient(uri, {
 async function run() {
   try {
     await client.connect();
-    const phonesCollection = client.db('phonesDB').collection('phones');
-    const cartCollection = client.db('cartDB').collection('cart');
   
-    app.post('/phones', async (req, res) => {
-      const newPhone = req.body;
-      const result = await phonesCollection.insertOne(newPhone)
-      res.send(result)
-    })
-    app.delete("/phones/:id", async (req, res) => {
-      const id = req.params.id;
-      const query = { _id: new ObjectId(id) }
-      const result = await phonesCollection.deleteOne(query)
-      res.send(result)
-    })
-    app.get('/phones/:id', async (req, res) => {
-      const id = req.params.id;
-      const query = { _id: id }
-      const result = await phonesCollection.findOne(query)
-      res.send(result)
-    })
-    app.put('/phones/:id', async (req, res) => {
-      const id = req.params.id;
-      const updatePhone = req.body;
-      const filter = { _id: new ObjectId(id) }
-      const options = { upsert: true }
-      console.log(id);
-      
-      const phone = {
-        $set: {
-          name: updatePhone.name,
-          brand_name: updatePhone.brand_name,
-          ram: updatePhone.ram,
-          storage: updatePhone.storage,
-          price: updatePhone.price,
-          image: updatePhone.image,
-          rating: updatePhone.rating,
-          details: updatePhone.details,
-          operating_system: updatePhone.operating_system,
-          camera: updatePhone.camera,
-        },
-      };
-      const result = await phonesCollection.updateOne(filter, phone, options);
-      res.send(result);
-    })
-    app.get('/phones', async (req, res) => {
-      const result = await phonesCollection.find().toArray();
-     
-      res.send(result);
-    });
-    
-    
-   
-   
-    
-    
-   
-    
-    // cart collection 
-    app.post('/cart', async (req, res) => {
-      const cartData = req.body;
-    
-      const result = await cartCollection.insertOne(cartData)
-      res.send(result)
-    })
-    app.delete("/cart/:id", async (req, res) => {
-      const id = req.params.id;
-      const query = { _id: id};
-      const result = await cartCollection.deleteOne(query);
-      res.send(result);
-    });
-    
-    app.get('/cart/:id', async (req, res) => {
-      const id = req.params.id;
-      const query = { _id: id }
-      const result = await cartCollection.findOne(query)
-      res.send(result)
-    })
-   
-    app.get('/cart', async (req, res) => {
-      const cursor = cartCollection.find()
-      const cart = await cursor.toArray()
-    
-      res.send(cart)
-    
-    })
    
     
    
@@ -131,7 +47,91 @@ async function run() {
 run().catch(console.dir);
 
 
+const phonesCollection = client.db('phonesDB').collection('phones');
+const cartCollection = client.db('cartDB').collection('cart');
 
+app.post('/phones', async (req, res) => {
+  const newPhone = req.body;
+  const result = await phonesCollection.insertOne(newPhone)
+  res.send(result)
+})
+app.delete("/phones/:id", async (req, res) => {
+  const id = req.params.id;
+  const query = { _id: new ObjectId(id) }
+  const result = await phonesCollection.deleteOne(query)
+  res.send(result)
+})
+app.get('/phones/:id', async (req, res) => {
+  const id = req.params.id;
+  const query = { _id: id }
+  const result = await phonesCollection.findOne(query)
+  res.send(result)
+})
+app.put('/phones/:id', async (req, res) => {
+  const id = req.params.id;
+  const updatePhone = req.body;
+  const filter = { _id: new ObjectId(id) }
+  const options = { upsert: true }
+  console.log(id);
+  
+  const phone = {
+    $set: {
+      name: updatePhone.name,
+      brand_name: updatePhone.brand_name,
+      ram: updatePhone.ram,
+      storage: updatePhone.storage,
+      price: updatePhone.price,
+      image: updatePhone.image,
+      rating: updatePhone.rating,
+      details: updatePhone.details,
+      operating_system: updatePhone.operating_system,
+      camera: updatePhone.camera,
+    },
+  };
+  const result = await phonesCollection.updateOne(filter, phone, options);
+  res.send(result);
+})
+app.get('/phones', async (req, res) => {
+  const result = await phonesCollection.find().toArray();
+ 
+  res.send(result);
+});
+
+
+
+
+
+
+
+
+// cart collection 
+app.post('/cart', async (req, res) => {
+  const cartData = req.body;
+
+  const result = await cartCollection.insertOne(cartData)
+  res.send(result)
+})
+app.delete("/cart/:id", async (req, res) => {
+  const id = req.params.id;
+  const query = { _id: id};
+  const result = await cartCollection.deleteOne(query);
+  res.send(result);
+});
+
+app.get('/cart/:id', async (req, res) => {
+  const id = req.params.id;
+  const query = { _id: id }
+  const result = await cartCollection.findOne(query)
+  res.send(result)
+})
+
+app.get('/cart', async (req, res) => {
+  const cursor = cartCollection.find()
+  const cart = await cursor.toArray()
+
+  res.send(cart)
+
+})
 
 app.get('/', (req, res) => {
   res.send("Server start successfully")
